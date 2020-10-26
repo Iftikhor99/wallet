@@ -581,3 +581,51 @@ func TestService_Import_Success(t *testing.T) {
 // 	}
 // 	//fmt.Printf("result %v", result)
 // }
+
+// func BenchmarkSumPaymentsWithProgress_Empty(b *testing.B) {
+// 	s := newTestService()
+	
+// 	//fmt.Println(newP)
+// 	//result := []types.Payment{} 
+// 	//payments, _ := s.FilterPayments(accountTest.ID,2)
+
+// 	accountTest, err := s.RegisterAccount("+992000000001")
+// 	if err != nil {
+// 		fmt.Print(err)
+		
+// 	}
+// 	err = s.Deposit(accountTest.ID, 2_000_000_000_000_000)
+// 	if err != nil {
+// 		fmt.Println("Аккаунт пользователя не найден")
+// 		//return
+// 	}
+// 	data := make([]int, 1_000_000)
+// 	// for j := 1; j < 1_000_522; j++ {
+// 	// 	_, _ = s.Pay(1, types.Money(1), "food")
+				
+// 	// }
+// 	log.Print(len(data))
+	
+// 	want := Progress{}
+// 	want.Part = 49999500000
+// 	want.Result = 500000500000
+// 	//chanel := make(chan Progress, 1)
+// 	//fmt.Printf("want %v", want)
+// 	for i := 0; i < b.N; i++ {
+// 		paymentsF := s.SumPaymentsWithProgress()
+// 	//	fmt.Print(paymentsF)
+		
+// 	//	chanel = paymentsF
+// 		// for j := range paymentsF {
+// 		// 	log.Print(j)
+// 		// }
+// 		resultChanel := <- paymentsF
+// 		//defer close(paymentsF)
+// //		log.Printf("resultChanel %v", resultChanel.Result)
+// 		result := resultChanel
+// 		if result != want {
+// 			b.Fatalf("invalid result, result %v, want %v", result, want)
+// 		}
+// 	}
+// 	//fmt.Printf("result %v", result)
+// }

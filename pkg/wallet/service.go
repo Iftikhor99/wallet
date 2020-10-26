@@ -372,7 +372,7 @@ func (s *Service) Export(dir string) error {
 	if lenAcou != 0 {
 
 		dirAccount := dir + "/accounts.dump"
-		log.Print(dirAccount)
+	//	log.Print(dirAccount)
 
 		fileAccounts, err := os.Create(dirAccount)
 		if err != nil {
@@ -611,7 +611,7 @@ func (s *Service) Import(dir string) error {
 
 	dirAccount := dir + "/accounts.dump"
 	fileAccount, err := os.Open(dirAccount)
-	log.Print(dirAccount)
+//	log.Print(dirAccount)
 	if err != nil {
 		log.Print(err)
 		err = ErrFileNotFound
@@ -624,7 +624,7 @@ func (s *Service) Import(dir string) error {
 			}
 		}()
 
-		log.Printf("%#v", fileAccount)
+//		log.Printf("%#v", fileAccount)
 
 		content := make([]byte, 0)
 		buf := make([]byte, 4)
@@ -641,7 +641,7 @@ func (s *Service) Import(dir string) error {
 		//log.Print(data)
 		//log.Print(newData)
 
-		for ind1, stroka := range newData {
+		for _, stroka := range newData {
 			//log.Print(stroka)
 			account := &types.Account{}
 			newData2 := strings.Split(stroka, ";")
@@ -663,7 +663,7 @@ func (s *Service) Import(dir string) error {
 
 				}
 
-				log.Print(ind1)
+			//	log.Print(ind1)
 
 			}
 			errExist := 1
@@ -680,11 +680,7 @@ func (s *Service) Import(dir string) error {
 				s.accounts = append(s.accounts, account)
 			}
 		}
-		for _, account := range s.accounts {
-			//	if account.Phone == phone {
-			log.Print(account)
-			//	}
-		}
+		
 	}
 
 	dirPayment := dir + "/payments.dump"
@@ -701,7 +697,7 @@ func (s *Service) Import(dir string) error {
 			}
 		}()
 
-		log.Printf("%#v", filePayments)
+//		log.Printf("%#v", filePayments)
 
 		contentPayment := make([]byte, 0)
 		bufPayment := make([]byte, 4)
@@ -718,7 +714,7 @@ func (s *Service) Import(dir string) error {
 		//log.Print(data)
 		//log.Print(newData)
 
-		for ind1, stroka := range newDataPayment {
+		for _, stroka := range newDataPayment {
 			//log.Print(stroka)
 			payment := &types.Payment{}
 			newData2 := strings.Split(stroka, ";")
@@ -749,7 +745,7 @@ func (s *Service) Import(dir string) error {
 					payment.Status = types.PaymentStatus(stroka2)
 				}
 
-				log.Print(ind1)
+		//		log.Print(ind1)
 
 			}
 			errExist := 1
@@ -768,11 +764,7 @@ func (s *Service) Import(dir string) error {
 				s.payments = append(s.payments, payment)
 			}
 		}
-		for _, payment := range s.payments {
-			//	if account.Phone == phone {
-			log.Print(payment)
-			//	}
-		}
+		
 	}
 
 	dirFavorite := dir + "/favorites.dump"
@@ -789,7 +781,7 @@ func (s *Service) Import(dir string) error {
 			}
 		}()
 
-		log.Printf("%#v", fileFavorites)
+	//	log.Printf("%#v", fileFavorites)
 
 		contentFavorite := make([]byte, 0)
 		bufFavorite := make([]byte, 4)
@@ -806,7 +798,7 @@ func (s *Service) Import(dir string) error {
 		//log.Print(data)
 		//log.Print(newData)
 
-		for ind1, stroka := range newDataFavorite {
+		for _, stroka := range newDataFavorite {
 			//log.Print(stroka)
 			favorite := &types.Favorite{}
 			newData2 := strings.Split(stroka, ";")
@@ -836,7 +828,7 @@ func (s *Service) Import(dir string) error {
 					favorite.Category = types.PaymentCategory(stroka2)
 				}
 
-				log.Print(ind1)
+			//	log.Print(ind1)
 
 			}
 			errExist := 1
@@ -855,11 +847,7 @@ func (s *Service) Import(dir string) error {
 				s.favorites = append(s.favorites, favorite)
 			}
 		}
-		for _, favorite := range s.favorites {
-			//	if account.Phone == phone {
-			log.Print(favorite)
-			//	}
-		}
+		
 	}
 	return nil
 
@@ -992,11 +980,7 @@ func (s *Service) HistoryToFiles(payments []types.Payment, dir string, record1 i
 		}
 	}
 
-	for _, payment := range payments {
-		//	if account.Phone == phone {
-		log.Print(payment)
-		//	}
-	}
+	
 
 	return err
 
@@ -1672,12 +1656,12 @@ func (s *Service) FilterPaymentsNew(accountID int64, goroutines int) ([]types.Pa
 func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 
 	foundPayments, _ := s.ExportAccountHistoryWithoutID()
-	totalManual := types.Money(0)
-	for _, t := range foundPayments {
-		totalManual += t.Amount
-	}
-	log.Print(len(foundPayments))
-	log.Print(totalManual)
+	//totalManual := types.Money(0)
+	// for _, t := range foundPayments {
+	// 	totalManual += t.Amount
+	// }
+	// log.Print(len(foundPayments))
+	// log.Print(totalManual)
 	//parts := 2
 	ch := make(chan Progress)
 	size := 100_000
@@ -1694,21 +1678,26 @@ func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 		parts = 1
 	}
 	if len(foundPayments) < 1 {
-		parts = len(foundPayments)
+		
+			
+		close(ch);
+		return ch;
+	}
+		// parts = len(foundPayments)
 				
-		sum := Progress{}
-		go func() {
-		ch <- sum
+		// sum := Progress{}
+		// go func() {
+		// ch <- sum
 
 		
-		// 	<-ch
-		// 	//<-newCh
-		// 	defer close(ch)
+		// // 	<-ch
+		// // 	//<-newCh
+		// // 	defer close(ch)
 
-		}()
+		// }()
 		// return ch
 		//size = 0
-	}
+	//}
 	if len(foundPayments) < size  {
 		parts = 1
 		size = len(foundPayments)
