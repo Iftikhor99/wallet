@@ -372,7 +372,7 @@ func (s *Service) Export(dir string) error {
 	if lenAcou != 0 {
 
 		dirAccount := dir + "/accounts.dump"
-	//	log.Print(dirAccount)
+		//	log.Print(dirAccount)
 
 		fileAccounts, err := os.Create(dirAccount)
 		if err != nil {
@@ -611,7 +611,7 @@ func (s *Service) Import(dir string) error {
 
 	dirAccount := dir + "/accounts.dump"
 	fileAccount, err := os.Open(dirAccount)
-//	log.Print(dirAccount)
+	//	log.Print(dirAccount)
 	if err != nil {
 		log.Print(err)
 		err = ErrFileNotFound
@@ -624,7 +624,7 @@ func (s *Service) Import(dir string) error {
 			}
 		}()
 
-//		log.Printf("%#v", fileAccount)
+		//		log.Printf("%#v", fileAccount)
 
 		content := make([]byte, 0)
 		buf := make([]byte, 4)
@@ -663,7 +663,7 @@ func (s *Service) Import(dir string) error {
 
 				}
 
-			//	log.Print(ind1)
+				//	log.Print(ind1)
 
 			}
 			errExist := 1
@@ -680,7 +680,7 @@ func (s *Service) Import(dir string) error {
 				s.accounts = append(s.accounts, account)
 			}
 		}
-		
+
 	}
 
 	dirPayment := dir + "/payments.dump"
@@ -697,7 +697,7 @@ func (s *Service) Import(dir string) error {
 			}
 		}()
 
-//		log.Printf("%#v", filePayments)
+		//		log.Printf("%#v", filePayments)
 
 		contentPayment := make([]byte, 0)
 		bufPayment := make([]byte, 4)
@@ -745,7 +745,7 @@ func (s *Service) Import(dir string) error {
 					payment.Status = types.PaymentStatus(stroka2)
 				}
 
-		//		log.Print(ind1)
+				//		log.Print(ind1)
 
 			}
 			errExist := 1
@@ -764,7 +764,7 @@ func (s *Service) Import(dir string) error {
 				s.payments = append(s.payments, payment)
 			}
 		}
-		
+
 	}
 
 	dirFavorite := dir + "/favorites.dump"
@@ -781,7 +781,7 @@ func (s *Service) Import(dir string) error {
 			}
 		}()
 
-	//	log.Printf("%#v", fileFavorites)
+		//	log.Printf("%#v", fileFavorites)
 
 		contentFavorite := make([]byte, 0)
 		bufFavorite := make([]byte, 4)
@@ -828,7 +828,7 @@ func (s *Service) Import(dir string) error {
 					favorite.Category = types.PaymentCategory(stroka2)
 				}
 
-			//	log.Print(ind1)
+				//	log.Print(ind1)
 
 			}
 			errExist := 1
@@ -847,7 +847,7 @@ func (s *Service) Import(dir string) error {
 				s.favorites = append(s.favorites, favorite)
 			}
 		}
-		
+
 	}
 	return nil
 
@@ -979,8 +979,6 @@ func (s *Service) HistoryToFiles(payments []types.Payment, dir string, record1 i
 			//		}
 		}
 	}
-
-	
 
 	return err
 
@@ -1655,165 +1653,39 @@ func (s *Service) FilterPaymentsNew(accountID int64, goroutines int) ([]types.Pa
 //SumPaymentsWithProgress for
 func (s *Service) SumPaymentsWithProgress() <-chan Progress {
 
-	foundPayments, _ := s.ExportAccountHistoryWithoutID()
-	//totalManual := types.Money(0)
-	// for _, t := range foundPayments {
-	// 	totalManual += t.Amount
-	// }
-	// log.Print(len(foundPayments))
-	// log.Print(totalManual)
-	//parts := 2
-	ch := make(chan Progress)
-	size := 100_000
-	parts := len(foundPayments) / size
-	//parts := int(math.Ceil(float64((len(foundPayments) + 1) / size)))
-	// remainingValues1 := len(foundPayments)/size
-	// remainingValues2 := len(foundPayments)-remainingValues1*size
-	// if remainingValues2 != 0 {
-	// 	parts = parts + 1
-	// }
-	
+	ch := make(chan Progress, 1)
+	defer close(ch)
 
-	if parts == 0 {
-		parts = 1
+	if s.payments == nil {
+		return ch
 	}
-	if len(foundPayments) < 1 {
-		
-			
-		close(ch);
-		return ch;
-	}
-		// parts = len(foundPayments)
-				
-		// sum := Progress{}
-		// go func() {
-		// ch <- sum
 
-		
-		// // 	<-ch
-		// // 	//<-newCh
-		// // 	defer close(ch)
-
-		// }()
-		// return ch
-		//size = 0
-	//}
-	if len(foundPayments) < size  {
-		parts = 1
-		size = len(foundPayments)
-	}
-	// if size > len(foundPayments) {
-	// 	parts = 1
-	// 	size = len(foundPayments)
+	// channel:=make([]<-chan int, parts)
+	// goroutines:=1
+	// i:=0
+	// mu := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	// if lenPayment < size {
+	// 	payments = payment
+	// 	log.Print("payments ", payments)
+	// } else {
 	// }
+	go func(ch chan Progress) {
+		defer wg.Done()
+		sum := Progress{}
 
-	// if size < len(foundPayments) {
-	// 	size = len(foundPayments)
-
-	// }
-
-	var foundPaymentsParts [][]types.Payment
-	for i := 0; i < parts; i++ {
-		endVal := (i+1)*size
-		if (i == parts-1) && (endVal < len(foundPayments)) {
-			endVal = len(foundPayments)
+		for _, value := range s.payments {
+			sum.Result += value.Amount
 		}
-		//	log.Print(accountID)
-		//	log.Print(payment.AccountID)
-		//if payment.AccountID == accountID {
-			foundPaymentsParts = append(foundPaymentsParts, foundPayments[i*size:endVal])
+		// sum.Part = i
+		// prog.Result = sum
+		ch <- sum
 
-	}
-	log.Print(len(foundPaymentsParts))
+	}(ch)
 
-	//	defer close(ch)
-	//parts := 2
-	//size := len(data)/parts
-	if (len(foundPayments) < size) && (len(foundPayments) !=0)  {
-	for _, payment := range foundPaymentsParts {
-		//endVal := (i + 1) * size
-		
-		
-			go func(ch chan<- Progress, foundPayments []types.Payment) {
-
-			sum := Progress{}
-			for j, onePament := range foundPayments {
-			
-				sum.Part += j
-				sum.Result += onePament.Amount
-			}
-			ch <- sum
-		}(ch, payment)
-		//return ch
-	}
-	}
-
-	if len(foundPayments) > size  {
-		payment1 :=  foundPayments[:]
-		go func(ch chan<- Progress, foundPayments []types.Payment) {
-
-			sum := Progress{}
-			for j, onePament := range foundPayments {
-			
-				sum.Part += j
-				sum.Result += onePament.Amount
-			}
-			ch <- sum
-		}(ch, payment1)
-		//return ch
-	}	
-
-	// total := Progress{}
-	// for i := 0; i < parts; i++ {
-	// //	go func() {
-	// 	value := <- ch
-	// 	total.Part += value.Part
-	// 	total.Result += value.Result
-		
-	//	}()
-	//	return ch
-	// }
-	// 	log.Print(total)
-	// 	// go func() {
-
-		// 	ch <- total
-		// }()
-	//	return ch
-		
-	go func() {
-		
-		<-ch
-		
-		//<-newCh
-		defer close(ch)
-
-	}()
+	wg.Wait()
 	return ch
-
-	// total := Progress{}
-	// for i := 0; i < parts; i++ {
-	// 	value := <- ch
-	// 	total.Part += value.Part
-	// 	total.Result += value.Result
-	// //	return ch
-	// }
-	//	log.Print(total)
-	// difference := totalManual - total.Result
-	// log.Print(difference)
-	// if total.Result != types.Money(0){
-	// 	//if total.Result != totalManual{
-	// 		total.Result += difference
-	// 	//}
-	// }
-
-	// newCh := make(chan Progress)
-	// go func() {
-	// 	newCh <- total
-	// //<-newCh
-	// 	defer close(newCh)
-	// }()
-
-	//return newCh
 }
 
 func merge(channels []<-chan Progress) <-chan Progress {
